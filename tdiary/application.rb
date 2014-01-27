@@ -38,6 +38,14 @@ module TDiary
 
 		def call( env )
 			@app.call( env )
+		rescue Exception => e
+			$stderr.puts "#{e.class}: #{e.to_s}"
+			$stderr.puts e.backtrace
+			res = TDiary::Response.new
+			res.status = 500
+			res["Content-Type"] = "text/plain"
+			res.body = [e.to_s]
+			res.finish
 		end
 	end
 
