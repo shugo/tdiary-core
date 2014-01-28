@@ -45,7 +45,7 @@ module TDiary
 					path = path.sub(/\/+$/, '').untaint
 					Dir.glob("#{path}/*.rb") {|style_file| require style_file.untaint }
 				end
-            TDiary::Style.constants(false).each do |name|
+				TDiary::Style.constants(false).each do |name|
 					prefix = name.slice(/\A(.*)Diary\z/, 1)
 					if prefix && /\A(Base|Categorizable)\z/ !~ prefix
 						klass = TDiary::Style.const_get(name)
