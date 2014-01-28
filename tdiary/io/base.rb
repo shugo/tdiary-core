@@ -45,15 +45,6 @@ module TDiary
 					path = path.sub(/\/+$/, '').untaint
 					Dir.glob("#{path}/*.rb") {|style_file| require style_file.untaint }
 				end
-				(["tdiary", "wiki"] + [@tdiary.conf.style].map(&:downcase)).flatten.uniq.each do |style|
-					klass = TDiary::Style.const_get("#{style.capitalize}Diary")
-					klass.send(:include, TDiary::Style::BaseDiary)
-					klass.send(:include, TDiary::Style::CategorizableDiary)
-					if TDiary::Style.const_defined? ("#{style.capitalize}Section")
-						TDiary::Style.const_get("#{style.capitalize}Section").send(:include, TDiary::Style::BaseSection)
-					end
-					@styles[style] = klass
-				end
 			end
 
 			def style(s)
@@ -62,7 +53,20 @@ module TDiary
 				end
 				r = @styles[s.downcase]
 				unless r
-					raise BadStyleError, "bad style: #{s}"
+					prefix = s.capitalize
+					diary_class_name = "#{prefix}Diary"
+					if TDiary::Style.const_defined?(diary_class_name)
+						klass = TDiary::Style.const_get(diary_class_name)
+						klass.send(:include, TDiary::Style::BaseDiary)
+						klass.send(:include, TDiary::Style::CategorizableDiary)
+						section_class_name = "#{prefix}Section"
+						if TDiary::Style.const_defined?(section_class_name)
+							TDiary::Style.const_get(section_class_name).send(:include, TDiary::Style::BaseSection)
+						end
+						r = @styles[s] = klass
+					else
+						raise BadStyleError, "bad style: #{s}"
+					end
 				end
 				r
 			end
