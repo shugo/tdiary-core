@@ -63,7 +63,7 @@ module TDiary
 						if TDiary::Style.const_defined?(section_class_name)
 							TDiary::Style.const_get(section_class_name).send(:include, TDiary::Style::BaseSection)
 						end
-						r = @styles[s] = klass
+						r = @styles[s.downcase] = klass
 					else
 						raise BadStyleError, "bad style: #{s}"
 					end
