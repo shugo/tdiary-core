@@ -45,7 +45,7 @@ module TDiary
 					path = path.sub(/\/+$/, '').untaint
 					Dir.glob("#{path}/*.rb") {|style_file| require style_file.untaint }
 				end
-				(["tdiary", "wiki", "markdown"] + [@tdiary.conf.style].map(&:downcase)).flatten.uniq.each do |style|
+				(["tdiary", "wiki"] + [@tdiary.conf.style].map(&:downcase)).flatten.uniq.each do |style|
 					klass = TDiary::Style.const_get("#{style.capitalize}Diary")
 					klass.send(:include, TDiary::Style::BaseDiary)
 					klass.send(:include, TDiary::Style::CategorizableDiary)
