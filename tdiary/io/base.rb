@@ -45,6 +45,19 @@ module TDiary
 					path = path.sub(/\/+$/, '').untaint
 					Dir.glob("#{path}/*.rb") {|style_file| require style_file.untaint }
 				end
+            TDiary::Style.constants(false).each do |name|
+					prefix = name.slice(/\A(.*)Diary\z/, 1)
+					if prefix && /\A(Base|Categorizable)\z/ !~ prefix
+						klass = TDiary::Style.const_get(name)
+						klass.send(:include, TDiary::Style::BaseDiary)
+						klass.send(:include, TDiary::Style::CategorizableDiary)
+						section_class_name = "#{prefix}Section"
+						if TDiary::Style.const_defined?(section_class_name)
+							TDiary::Style.const_get(section_class_name).send(:include, TDiary::Style::BaseSection)
+						end
+						@styles[prefix.downcase] = klass
+					end
+            end
 			end
 
 			def style(s)
@@ -53,20 +66,7 @@ module TDiary
 				end
 				r = @styles[s.downcase]
 				unless r
-					prefix = s.capitalize
-					diary_class_name = "#{prefix}Diary"
-					if TDiary::Style.const_defined?(diary_class_name)
-						klass = TDiary::Style.const_get(diary_class_name)
-						klass.send(:include, TDiary::Style::BaseDiary)
-						klass.send(:include, TDiary::Style::CategorizableDiary)
-						section_class_name = "#{prefix}Section"
-						if TDiary::Style.const_defined?(section_class_name)
-							TDiary::Style.const_get(section_class_name).send(:include, TDiary::Style::BaseSection)
-						end
-						r = @styles[s.downcase] = klass
-					else
-						raise BadStyleError, "bad style: #{s}"
-					end
+					raise BadStyleError, "bad style: #{s}"
 				end
 				r
 			end
