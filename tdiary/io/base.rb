@@ -57,7 +57,7 @@ module TDiary
 						end
 						@styles[prefix.downcase] = klass
 					end
-            end
+				end
 			end
 
 			def style(s)
